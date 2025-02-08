@@ -6,5 +6,3 @@ resources:
 - cert-manager.yaml
 - kube-prometheus-stack.yaml
 - cloudnativepg.yaml
-# Workshop specific stuff 
-- coder-postgres.yaml 

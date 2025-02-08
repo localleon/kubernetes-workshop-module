@@ -27,4 +27,4 @@ spec:
   path: infra/fluxcd-workshop
   prune: true
   wait: true
---- 
+---

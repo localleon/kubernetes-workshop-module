@@ -7,9 +7,16 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: coderdb
+  namespace: coderdb
 spec:
   instances: 1
-
   storage:
     storageclass: managed-csi
     size: 10Gi
+  # Create CoderDB
+  bootstrap:
+    initdb:
+      database: coder
+      owner: coder
+      secret:
+        name: coder-db-secret
