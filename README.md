@@ -38,27 +38,12 @@ To participate in our workshops you will require the following items on your not
 - `oh-my-zsh` -> https://ohmyz.sh/#install
 - `Powerlevel10k` -> https://github.com/romkatv/powerlevel10k
 
-## Config Management
-
-```
-export KUBECONFIG="$(find ~/.kube/configs -iname 'kubeconfig-*' -exec printf '%s:' '{}' +)${HOME}/.kube/configs/config"
-
-load_kubeconfig () {
-  export KUBECONFIG="$(find ~/.kube/configs -iname 'kubeconfig-*' -exec printf '%s:' '{}' +)${HOME}/.kube/configs/config"
-}
-load_kubeconfig
-```
-
-## Prometheus
-
-- Prometheus mit mehreren Clustern -> https://sysrant.com/posts/prometheus-multi-cluster/
-
 ## k8s testen
 
+- KIND (Kubernetes in Docker) -> https://kind.sigs.k8s.io/ (empfohlen)
 - kubeadm (minimum viable Kubernetes cluster) -> https://kubernetes.io/docs/reference/setup-tools/kubeadm/
 - k3s (Lightweight Kubernetes) -> https://k3s.io/
 - k3d (k3d is a lightweight wrapper to run k3s) -> https://k3d.io/
-- KIND (Kubernetes in Docker) -> https://kind.sigs.k8s.io/
 
 ## Additional tooling and resources
 
