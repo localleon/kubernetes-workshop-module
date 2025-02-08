@@ -3,17 +3,15 @@ kind: Namespace
 metadata:
   name: coder
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: OCIRepository
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
 metadata:
-  name: bitnami-coder
+  name: bitnami-oci
   namespace: flux-system
 spec:
-  interval: 10m
-  url: oci://registry-1.docker.io/bitnamicharts/postgresql
-  # ref:
-  #   semver: ">6.0.0"
-
+  interval: "1h"
+  type: oci
+  url: oci://registry-1.docker.io/bitnamicharts
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -22,9 +20,14 @@ metadata:
   namespace: coder
 spec:
   releaseName: coder-db
-  chartRef:
-    kind: OCIRepository
-    name: bitnami-coder
+  chart:
+    spec:
+      chart: postgressql
+      # version: '3.2.16'
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami-oci
+        namespace: flux-system
   interval: 50m
   values:
   # Add your helm-values of chart here
