@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: coderdb
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: coderdb
+spec:
+  instances: 1
+
+  storage:
+    storageclass: managed-csi
+    size: 10Gi
