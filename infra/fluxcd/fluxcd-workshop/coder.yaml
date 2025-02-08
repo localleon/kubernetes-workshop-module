@@ -1,0 +1,48 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: coder-charts
+  namespace: flux-system
+spec:
+  interval: "1h"
+  url: https://helm.coder.com/v2
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: coder
+  namespace: coderdb
+spec:
+  releaseName: coder  
+  chart:
+    spec:
+      chart: coder 
+      version: '2.18.0'
+      sourceRef:
+        kind: HelmRepository
+        name: coder-charts
+        namespace: flux-system
+  interval: 1m
+  values:
+  # Add your helm-values of chart here
+    coder:
+      env:
+        - name: CODER_PG_CONNECTION_URL
+          valueFrom:
+            secretKeyRef:
+              # You'll need to create a secret called coder-db-url with your
+              # Postgres connection URL like:
+              # postgres://coder:password@postgres:5432/coder?sslmode=disable
+              name: coder-db-url
+              key: url
+      ingress:
+        enable: true
+        className: traefik
+        host: "coder.gnomgnom.com"
+      # coder.service -- The Service object to expose for Coder.
+      service:
+        # coder.service.enable -- Whether to create the Service object.
+        enable: true
+        # coder.service.type -- The type of service to expose. See:
+        # https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+        type: ClusterIP

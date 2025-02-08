@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 # Base Infrastructure 
 - coder-db.yaml
+- coder.yaml
