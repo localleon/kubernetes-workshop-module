@@ -18,5 +18,3 @@ spec:
     initdb:
       database: coder
       owner: coder
-      secret:
-        name: coder-db-secret
