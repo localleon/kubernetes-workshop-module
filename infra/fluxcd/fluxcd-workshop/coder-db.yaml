@@ -11,7 +11,7 @@ metadata:
 spec:
   instances: 1
   storage:
-    storageclass: managed-csi
+    storageClass: managed-csi
     size: 10Gi
   # Create CoderDB
   bootstrap:
