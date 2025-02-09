@@ -8,7 +8,7 @@ In diesem Dive-In Workshop bekommt ihr einen Überblick über das Basiskonzept v
 
 The workshop toolchain image is available under `ghcr.io/localleon/kubernetes-workshop-module/kubernetes-toolcontainer:latest` and is built with Github Actions from this repository.
 
-To participate in our workshops you will require the following items on your notebook:
+To participate in our workshops you will require the following items on your notebook or in the toolchain container:
 
 * Linux, MacOS or Windows idealy with an administrator access
 * kubernetes client software kubectl
@@ -21,33 +21,43 @@ To participate in our workshops you will require the following items on your not
   * [Install Docker desktop Windows](https://docs.docker.com/docker-for-windows/install/)
   * [Install Docker desktop MacOS](https://docs.docker.com/docker-for-mac/install/)
 
+## Create your workspace (if you don't have local tooling)
+
+Navigate to the provided URL of "coder" in your browser. 
+
+1. Login with your provided credentials 
+2. Use the button "Create Workspace" and select the Template "Workshop-Kubernetes". This will provide you with all the required tools for the workshop 
+3. Wait for your workspace to enter the running state and that "code-server" has been installed 
+4. Click the "code-server" button in your workspace to open up your main terminal/text-editor session for this workshop. 
+5. In the "Code-Server" window, use VS-Code as normally and install the "Kubernetes" Extension from the Marketplace via the sidebar. 
+6. Open a terminal by clicking at "Hamburger Menu at Sidebar" > "Terminal" > "New Terminal"  
+7. Copy your provided kubeconfig to `~/.kube/config` and use 'export KUBECONFIG=~/.kube/config' to activate it for the current context 
+
+Now you are ready to start exploring the cluster! Please also clone the workshop-repository with 'git clone https://github.com/localleon/kubernetes-workshop-module.git' into your workspace so you have all files on hand! 
+
+We are ready to start with the workshop! 
+
 ## Extra
+
+You can stop reading here. These are informations for after the workshop! 
 
 - `k9s` -> https://github.com/derailed/k9s
 - Lens -> https://k8slens.dev/
 - Web basierter Generator für K8S YMLs -> https://k8syaml.com/
 
-## Docker (Ersatz/lizenztechnisches)
+### Docker (Ersatz/lizenztechnisches)
 
 - bei Lizenzbedenken bzgl. Docker Desktop auf Windows -> https://dev.to/_nicolas_louis_/how-to-run-docker-on-windows-without-docker-desktop-hik
 - Podman als Docker Ersatz - https://podman.io/
 
-## Environment
-
-- `zsh-autosuggestions` -> https://github.com/zsh-users/zsh-autosuggestions
-- `zsh-autocomplete` -> https://github.com/marlonrichert/zsh-autocomplete
-- `zsh-syntax-highlighting` -> https://github.com/zsh-users/zsh-syntax-highlighting
-- `oh-my-zsh` -> https://ohmyz.sh/#install
-- `Powerlevel10k` -> https://github.com/romkatv/powerlevel10k
-
-## k8s testen
+### k8s testen
 
 - KIND (Kubernetes in Docker) -> https://kind.sigs.k8s.io/ (empfohlen)
 - kubeadm (minimum viable Kubernetes cluster) -> https://kubernetes.io/docs/reference/setup-tools/kubeadm/
 - k3s (Lightweight Kubernetes) -> https://k3s.io/
 - k3d (k3d is a lightweight wrapper to run k3s) -> https://k3d.io/
 
-## Additional tooling and resources
+### Additional tooling and resources
 
 * https://github.com/aylei/kubectl-debug
 * https://github.com/kubernetes-sigs/krew

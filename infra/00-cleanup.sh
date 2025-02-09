@@ -19,3 +19,5 @@ for USER in "${USERS[@]}"; do
     kubectl delete namespace $USER
     coder useres delete $USER
 done
+
+rm -rf infra/generated-kubeconfigs

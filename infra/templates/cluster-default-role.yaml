@@ -6,3 +6,6 @@ rules:
 - apiGroups: ["*"]
   resources: ["*"]
   verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/portforward"]
+  verbs: ["create"]

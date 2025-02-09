@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: metrics-app-monitor
+  labels:
+    release: kube-prometheus  # Must match Prometheus instance label, this connects the Prometheus Scraper to your service
+spec:
+  selector:
+    matchLabels:
+      app: metrics-app  # Must match the service label
+  namespaceSelector:
+    matchNames:
+      - user1  # Adjust based on where the app is deployed
+  endpoints:
+    - port: http-metrics  # Must match the service port name
+      path: /metrics
+      interval: 15s
