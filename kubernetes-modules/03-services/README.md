@@ -5,7 +5,6 @@
 * Before you begin with the actual exercise please make sure to follow these steps to work in your own environment:
 
   ```shell
-  kubectl create ns <YOURNAME>
   kubectl config set-context --current --namespace=<YOURNAME>
   ```
 
@@ -32,23 +31,6 @@
   ```
 
   </details>
-
-### Make the deployment publically available
-
-* Create a service (type Loadbalancer) with the file `service-loadbalancer.yaml`
-
-  ```shell
-  kubectl apply -f service-loadbalancer.yaml
-  ```
-
-* Get external IP from LoadBalancer Service
-  (watch this command until "EXTERNAL-IP" is no longer "pending" and finally gets a fix IP)
-
-  ```shell
-  kubectl get service web-application -w
-  ```
-
-* Visit the URL `http://<IP_ADDRESS>` or curl the website with `curl http://<IP_ADDRESS>`
 
 ### Make the deployment (only) internally available
 

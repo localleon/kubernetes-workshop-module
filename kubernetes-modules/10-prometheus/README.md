@@ -108,4 +108,3 @@ Key Points
 ✅ The Service exposes the app inside the cluster.
 ✅ The ServiceMonitor configures Prometheus to scrape the metrics.
 ✅ Prometheus automatically picks up the target if the release label matches.
-
