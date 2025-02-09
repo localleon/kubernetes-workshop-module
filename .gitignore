@@ -1,2 +1,5 @@
 .idea
 .DS_Store
+
+# Ignore generated resources 
+infra/workshop-kubeconfigs

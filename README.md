@@ -6,6 +6,8 @@ In diesem Dive-In Workshop bekommt ihr einen Überblick über das Basiskonzept v
 
 ## Workshop requirements
 
+The workshop toolchain image is available under `ghcr.io/localleon/kubernetes-workshop-module/kubernetes-toolcontainer:latest` and is built with Github Actions from this repository.
+
 To participate in our workshops you will require the following items on your notebook:
 
 * Linux, MacOS or Windows idealy with an administrator access
