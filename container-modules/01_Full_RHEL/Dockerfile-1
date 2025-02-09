@@ -1,0 +1,13 @@
+FROM registry.access.redhat.com/ubi9
+RUN dnf update -y
+RUN dnf install java-17-openjdk-devel -y
+
+RUN java -version && javac -version
+
+WORKDIR /app
+
+COPY HelloWorld.java .
+
+RUN javac HelloWorld.java
+
+CMD ["java","HelloWorld"]

@@ -1,0 +1,28 @@
+FROM registry.access.redhat.com/ubi9-minimal AS build
+RUN microdnf update -y
+RUN microdnf install java-17-openjdk-devel -y
+
+RUN java -version && javac -version
+
+WORKDIR /app
+
+COPY HelloWorld.java .
+
+RUN javac HelloWorld.java
+
+FROM registry.access.redhat.com/ubi9-micro
+
+ENV JAVA_HOME=/opt/java-17-openjdk
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+# Copy the Java runtime from the build stage
+COPY --from=build /usr/lib/jvm/java-17-openjdk $JAVA_HOME
+COPY --from=build /usr/bin/java /usr/bin/java
+
+# Copy the compiled Java class from the build stage
+COPY --from=build /app/HelloWorld.class /app/
+
+# Set the working directory in the container
+WORKDIR /app
+
+CMD ["java","HelloWorld"] 

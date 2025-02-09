@@ -1,0 +1,11 @@
+# Verwende das offizielle Nginx-Basisimage
+FROM nginx:alpine
+
+# Kopiere die HTML-Datei in das Verzeichnis, das von Nginx bedient wird
+COPY Website.html /usr/share/nginx/html/index.html
+
+# Exponiere den Standard-Nginx-Port
+EXPOSE 80
+
+# Starte Nginx
+CMD ["nginx", "-g", "daemon off;"]
