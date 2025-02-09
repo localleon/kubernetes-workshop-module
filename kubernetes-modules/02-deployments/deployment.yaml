@@ -16,5 +16,5 @@ spec:
         app: declarative-deploy
     spec:
       containers:
-      - image: nginx
+      - image: "syseleven/metakube-hello:2.0.0"
         name: nginx

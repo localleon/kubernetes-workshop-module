@@ -5,7 +5,6 @@
 * Before you begin with the actual exercise please make sure to follow these steps to work in your own environment:
 
   ```shell
-  kubectl create ns <YOURNAME>
   kubectl config set-context --current --namespace=<YOURNAME>
   ```
 

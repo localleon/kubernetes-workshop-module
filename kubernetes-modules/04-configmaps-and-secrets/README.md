@@ -5,7 +5,6 @@
 * Before you begin with the actual exercise please make sure to follow these steps to work in your own environment:
 
   ```shell
-  kubectl create ns <YOURNAME>
   kubectl config set-context --current --namespace=<YOURNAME>
   ```
 
@@ -51,10 +50,7 @@
   kubectl get deployment web-application -o yaml
   ```
 
-* Fetch the IP address of your LB service again
-  and browse the website `http://<IP_ADDRESS>`
-  or curl the website with `curl http://<IP_ADDRESS>`.
-  * If you already deleted the LB - create a port forward to the pod before
+  * If you have not deleted the service from the previous exercise - create a port forward to the pod before
 
     ```shell
     kubectl port-forward pods/web-application-<xxxxxxx> 8080:80

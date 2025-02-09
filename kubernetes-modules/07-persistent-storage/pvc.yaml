@@ -8,3 +8,4 @@ spec:
   resources:
     requests:
       storage: 10Gi
+  storageClassName: managed-csi # this is azures standard storageclass, on our private cloud you will have different names

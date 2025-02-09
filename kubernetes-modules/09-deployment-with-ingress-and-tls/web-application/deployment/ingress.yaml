@@ -10,9 +10,9 @@ metadata:
 spec:
   tls:
     - hosts:
-        - web-application-<YOUR_NAME>.workshop.metakube.org
+        - web-application-<YOUR_NAME>.aks-dev0.amp-cloud.net
   rules:
-    - host: web-application-<YOUR_NAME>.workshop.metakube.org
+    - host: web-application-<YOUR_NAME>.aks-dev0.amp-cloud.net
       http:
         paths:
           - path: /
