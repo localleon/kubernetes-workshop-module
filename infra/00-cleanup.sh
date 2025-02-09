@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Define users in an array
 USERS=(
     "user1"
@@ -18,4 +17,5 @@ USERS=(
 # Loop through users
 for USER in "${USERS[@]}"; do
     kubectl delete namespace $USER
+    coder useres delete $USER
 done
