@@ -1,0 +1,15 @@
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: sample-helm
+  # This namespace is special and auto-wired to deploy to the local cluster
+  namespace: fleet-local
+spec:
+  # Everything from this repo will be run in this cluster. You trust me right?
+  repo: "git@github.com:localleon/kubernetes-workshop-module.git"
+  # or
+  # repo: "ssh://git@github.com/rancher/fleet-examples"
+  paths:
+  - kubernetes-modules/12-gitops-fleet/helm
+
+  targetNamespace: fleet-sample-helm
