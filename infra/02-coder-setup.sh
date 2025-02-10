@@ -6,16 +6,15 @@ CODER_API_URL="http://coder.gnomgnom.com/api/v2"
 # Define users in an array
 USERS=(
     "user1"
-    "user2"
-    "user3"
-    "user4"
-    "user5"
-    "user6"
-    "user7"
-    "user8"
-    "user9"
-    "user10"
-
+    # "user2"
+    # "user3"
+    # "user4"
+    # "user5"
+    # "user6"
+    # "user7"
+    # "user8"
+    # "user9"
+    # "user10"
 )
 
 ## ================= Create Workspace Template =============================

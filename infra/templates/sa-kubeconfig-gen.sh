@@ -85,7 +85,7 @@ set_kube_config_values() {
     --embed-certs=true
 
     echo -n "Creating token for user" 
-    USER_TOKEN="$(kubectl create token ${SERVICE_ACCOUNT_NAME} -n ${NAMESPACE})"
+    USER_TOKEN="$(kubectl create token --duration 90d ${SERVICE_ACCOUNT_NAME} -n ${NAMESPACE})"
 
     echo -n "Setting token credentials entry in kubeconfig..."
     kubectl config set-credentials \
