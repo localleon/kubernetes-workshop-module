@@ -6,3 +6,4 @@ resources:
 - cert-manager.yaml
 - kube-prometheus-stack.yaml
 - cloudnativepg.yaml
+- kyverno.yaml
