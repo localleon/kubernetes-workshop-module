@@ -26,3 +26,4 @@ spec:
   values:
   # Add your helm-values of chart here
     hostname: rancher.aks-dev0.amp-cloud.net
+    replicas: 1
