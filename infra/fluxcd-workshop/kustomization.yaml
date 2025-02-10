@@ -4,3 +4,4 @@ resources:
 # Base Infrastructure 
 - coder-db.yaml
 - coder.yaml
+- rancher.yaml
