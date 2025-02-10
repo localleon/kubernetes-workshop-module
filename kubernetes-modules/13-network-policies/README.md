@@ -9,19 +9,18 @@ kubectl apply -f deny-all.yaml
 * Start a busybox container pod in another namespace **in a different shell**
 
 ```
-kubectl create namespace <YOUR_NAME>-policy
-kubectl run -n <YOUR_NAME>-policy -it --image busybox network-policy-test -- sh
+kubectl apply -f connecting-pod.yaml
+ kubectl exec -it pods/network-policy-test -- sh
 
 # In the pod: Try to reach your web-application
-wget web-application.<YOUR_NAME>
+curl web-application-int:80 -v
 ```
 
 * See that it times out
 
-* Edit the namespace and add the label `network-policy/web-application: allow`, then deploy the allow-web-application.yaml
+* Check out our new NetworkPolicy that allows the connectin-test pod to connect to our backend application!
 
 ```
-kubectl edit namespace <YOUR_NAME>-policy
 kubectl apply -f allow-web-application.yaml
 ```
 

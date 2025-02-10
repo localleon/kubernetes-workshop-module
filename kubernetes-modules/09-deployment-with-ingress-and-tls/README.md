@@ -16,3 +16,7 @@ You can watch the DNS record get created with the ExternalDNS Operator. [Externa
 kubectl logs -n external-dns deployments/external-dns
 ```
 
+You can check with a tool like nslookup if your domain record has been successfully promoted and is accessible. This can take some time!
+```sh
+nslookup YOUR_DOMAIN.aks-dev0.amp-cloud.net 1.1.1.1
+```

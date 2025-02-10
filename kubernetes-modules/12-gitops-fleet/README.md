@@ -54,6 +54,8 @@ We first create all GitRepo Resources and create a reference to the deployment f
 kubectl apply -f kubernetes-modules/12-gitops-fleet/fleet-resources
 ```
 
+Now navigate to [Rancher > Continous Delivery](https://rancher.aks-dev0.amp-cloud.net/dashboard/c/_/fleet)
+
 You can watch the deployments in both namespaces 
 ```sh
 kubectl get pods -n fleet-sample-simple

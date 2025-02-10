@@ -6,7 +6,9 @@ metadata:
   namespace: fleet-local
 spec:
   # Everything from this repo will be run in this cluster. You trust me right?
-  repo: "git@github.com:localleon/kubernetes-workshop-module.git"
+  repo: "https://github.com/localleon/kubernetes-workshop-module"
+  branch: main
+
   # or
   # repo: "ssh://git@github.com/rancher/fleet-examples"
   paths:

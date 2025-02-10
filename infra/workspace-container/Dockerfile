@@ -52,6 +52,9 @@ RUN \
 # Install K9s 
 RUN curl -sLO https://github.com/derailed/k9s/releases/download/v0.32.7/k9s_linux_amd64.deb && sudo dpkg -i k9s_linux_amd64.deb
 
+# Kyverno CLI 
+RUN curl -LO https://github.com/kyverno/kyverno/releases/download/v1.12.0/kyverno-cli_v1.12.0_linux_x86_64.tar.gz && tar -xvf kyverno-cli_v1.12.0_linux_x86_64.tar.gz && cp kyverno /usr/local/bin/
+
 ARG USER=coder
 RUN useradd --groups sudo --no-create-home --shell /bin/bash ${USER} \
     && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/${USER} \

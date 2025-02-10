@@ -107,34 +107,21 @@ kubectl get pods -n kyverno
 
 ---
 
-### **2. List Kyverno Policies**
-#### **List all ClusterPolicies (global policies)**
+---
+
+### Apply a Policy
+To apply a Kyverno policy:
 ```sh
-kubectl get clusterpolicy
+kubectl apply -f label-policy.yaml
 ```
 #### **List namespace-scoped policies**
 ```sh
 kubectl get policy -n my-namespace
 ```
 
----
-
-### **3. View Policy Details**
-#### **Describe a ClusterPolicy**
-```sh
-kubectl describe clusterpolicy require-labels
-```
 #### **Describe a namespace-scoped Policy**
 ```sh
 kubectl describe policy my-policy -n my-namespace
-```
-
----
-
-### **4. Apply a Policy**
-To apply a Kyverno policy:
-```sh
-kubectl apply -f my-policy.yaml
 ```
 
 ---
@@ -146,36 +133,39 @@ kyverno apply my-policy.yaml --resource my-pod.yaml
 ```
 If Kyverno CLI is not installed, you can simulate a dry-run with `kubectl create`:
 ```sh
-kubectl create -f my-pod.yaml --dry-run=server
+kubectl apply -f violating-deployment.yaml
 ```
 
----
-
-### **6. Delete a Policy**
-#### **Delete a ClusterPolicy**
+To check policy violations, we see that our freshly created pod is in violation of the policy! 
 ```sh
-kubectl delete clusterpolicy require-labels
+kubectl get policyreport 
 ```
+
+For more details:
+```sh
+kubectl describe policyreport
+```
+
+Now we will enforce our policy, meaning our deployment will not be able to complete if the policy is active! Set the label-policy.yaml to Enforce by editing the following snippet in the policy file:
+
+```yaml 
+spec:
+  validationFailureAction: Enforce
+```
+
+If we now delete the deployment, apply the policy in enforcing mode and then try to recreate our violating deployment, the API server will block the request!
+```sh
+kubectl delete -f violating-deployment.yaml
+kubectl apply -f label-policy.yaml
+kubectl apply -f violating-deployment.yaml
+```
+Now try to fix the label of your violating-deployment according to the Kyverno Policy and reapply the YAML so that the pod gets successfully deployed! 
+
+
 #### **Delete a namespace-scoped Policy**
 ```sh
 kubectl delete policy my-policy -n my-namespace
 ```
 
----
-
-### **7. Monitor Kyverno Policy Violations**
-To check policy violations:
-```sh
-kubectl get policyreport -A
-```
-For more details:
-```sh
-kubectl describe policyreport -n my-namespace
-```
-
----
-
 ## **Conclusion**
 Kyverno makes **policy enforcement and automation** easier with its Kubernetes-native approach. By using validation, mutation, and generation policies, you can enforce security best practices, modify resources dynamically, and automate configuration management.  
-
-Would you like a **hands-on example** or a **specific use case**? 🚀

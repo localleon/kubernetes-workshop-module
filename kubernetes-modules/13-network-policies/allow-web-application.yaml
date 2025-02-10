@@ -10,6 +10,7 @@ spec:
     - Ingress
   ingress:
     - from:
-      - namespaceSelector:
-          matchLabels:
-            network-policy/web-application: allow
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app: network-policy-test
