@@ -1,0 +1,54 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: adfinis
+  namespace: flux-system
+spec:
+  interval: 50m
+  url: https://charts.adfinis.com # Adfinis
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager-issuer
+  namespace: cert-manager
+spec:
+  dependsOn:
+    - name: cert-manager # Depend on inital cert-manager installation
+  releaseName: cert-manager-issuer
+  chart:
+    spec:
+      chart: cert-manager-issuers
+      sourceRef:
+        kind: HelmRepository
+        name: adfinis
+        namespace: flux-system
+  interval: 5m
+  values:
+  # Add your helm-values of chart here
+    # YAML Anchors for meta configuration
+    _1: &email no-reply@example.com
+    _2: &solvers
+    - http01:
+        ingress:
+          class: traefik
+
+    # Issuer configuration
+    clusterIssuers:
+    - name: letsencrypt-prod
+      spec:
+        acme:
+          email: *email
+          server: https://acme-v02.api.letsencrypt.org/directory
+          privateKeySecretRef:
+            name: letsencrypt-prod-account-key
+          solvers: *solvers
+    - name: letsencrypt-staging
+      spec:
+        acme:
+          email: *email
+          server: https://acme-staging-v02.api.letsencrypt.org/directory
+          privateKeySecretRef:
+            name: letsencrypt-staging-account-key
+          solvers: *solvers

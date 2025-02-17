@@ -4,6 +4,7 @@ resources:
 # Base Infrastructure 
 - traefik-ingress.yaml
 - cert-manager.yaml
+- cert-manager-issuer.yaml
 - kube-prometheus-stack.yaml
 - cloudnativepg.yaml
 - kyverno.yaml
