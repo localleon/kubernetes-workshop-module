@@ -40,7 +40,7 @@ spec:
         className: traefik
         host: "workstation.aks-dev0.amp-cloud.net"
         annotations: 
-          cert-manager.io/issuer: "letsencrypt-staging"
+          cert-manager.io/cluster-issuer: "letsencrypt-prod"
         tls:
           enable: true
           secretName: workstation-aks-dev0-amp-cloud.net-tls

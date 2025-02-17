@@ -42,6 +42,6 @@ spec:
     ### LetsEncrypt config ###
     letsEncrypt:
       email: me@lrau.xyz
-      environment: staging
+      environment: production
       ingress:
         class: "traefik"
