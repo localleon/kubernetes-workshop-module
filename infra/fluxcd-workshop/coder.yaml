@@ -39,6 +39,11 @@ spec:
         enable: true
         className: traefik
         host: "workstation.aks-dev0.amp-cloud.net"
+        annotations: 
+          cert-manager.io/issuer: "letsencrypt-staging"
+        tls:
+          enable: false
+          secretName: workstation-aks-dev0-amp-cloud.net-tls
       # coder.service -- The Service object to expose for Coder.
       service:
         # coder.service.enable -- Whether to create the Service object.
