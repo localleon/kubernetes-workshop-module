@@ -28,7 +28,7 @@ spec:
   values:
   # Add your helm-values of chart here
     # YAML Anchors for meta configuration
-    _1: &email no-reply@example.com
+    _1: &email me@lrau.xyz # Personal mail for workshop only
     _2: &solvers
     - http01:
         ingress:

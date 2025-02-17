@@ -32,3 +32,16 @@ spec:
   # Add your helm-values of chart here
     hostname: rancher.aks-dev0.amp-cloud.net
     replicas: 1
+
+    # Use Let's encrypt issuer 
+    tls:
+      # options: rancher, letsEncrypt, secret
+      source: letsEncrypt
+      secretName: tls-rancher-ingress
+
+    ### LetsEncrypt config ###
+    letsEncrypt:
+      email: me@lrau.xyz
+      environment: staging
+      ingress:
+        class: "traefik"

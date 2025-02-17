@@ -42,7 +42,7 @@ spec:
         annotations: 
           cert-manager.io/issuer: "letsencrypt-staging"
         tls:
-          enable: false
+          enable: true
           secretName: workstation-aks-dev0-amp-cloud.net-tls
       # coder.service -- The Service object to expose for Coder.
       service:
