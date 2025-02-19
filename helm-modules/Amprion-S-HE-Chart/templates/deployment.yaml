@@ -1,1 +1,25 @@
 # Deplyoment File of Helm Chart
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-nginx
+  namespace: {{ .values.namespace }}
+  labels:
+    app: Website-expose
+    application: {{ .Chart.name }}
+spec:
+  replicas: {{ .values.replicacount}}
+  selector:
+    matchLabels:
+      app: Website-expose
+  template:
+    metadata:
+      labels:
+        app: Website-expose
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}-container
+        image: {{ .values.image }}:{{ .values.tag }}
+        ports:
+        - containerPort: 80

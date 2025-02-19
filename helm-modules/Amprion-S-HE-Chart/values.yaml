@@ -1,1 +1,11 @@
 # Example Helm Chart Values File
+
+namspace: default
+
+replicacount: 3
+
+image: 
+
+tag:
+
+exposePort: 30001
