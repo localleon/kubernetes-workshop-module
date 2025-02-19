@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "Amprion-S-HE-Chart.fullname" . }}
+  labels:
+    {{- include "Amprion-S-HE-Chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "Amprion-S-HE-Chart.selectorLabels" . | nindent 4 }}
