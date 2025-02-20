@@ -17,5 +17,5 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: web-application
+              serviceName: web-application-int
               servicePort: 80
