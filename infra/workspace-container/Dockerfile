@@ -1,3 +1,7 @@
+# Use this FROM instruction as shortcut to use --copy=from kaniko below
+# It's also possible to use directly COPY --from=gcr.io/kaniko-project/executor
+FROM gcr.io/kaniko-project/executor AS kaniko
+
 FROM ubuntu
 
 RUN apt-get update \
@@ -32,6 +36,16 @@ RUN apt-get update \
     software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
+#
+# Add kaniko to this image by re-using binaries and steps from official image
+#
+COPY --from=kaniko /kaniko/executor /kaniko/executor
+COPY --from=kaniko /kaniko/docker-credential-gcr /kaniko/docker-credential-gcr
+COPY --from=kaniko /kaniko/docker-credential-ecr-login /kaniko/docker-credential-ecr-login
+COPY --from=kaniko /kaniko/docker-credential-acr-env /kaniko/docker-credential-acr-env
+COPY --from=kaniko /etc/nsswitch.conf /etc/nsswitch.conf
+COPY --from=kaniko /kaniko/.docker /kaniko/.docker
+
 # install kubectl
 RUN \
   curl -LsO https://storage.googleapis.com/kubernetes-release/release/$(curl -LsS https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
@@ -60,8 +74,9 @@ RUN useradd --groups sudo --no-create-home --shell /bin/bash ${USER} \
     && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/${USER} \
     && chmod 0440 /etc/sudoers.d/${USER}
 
-# Install BashRC for user 
+# Install BashRC for coder user and default ubuntu user
 COPY .bashrc /home/${USER}/.bashrc 
+COPY .bashrc /home/ubuntu/.bashrc 
 
 USER ${USER}
 WORKDIR /home/${USER}

@@ -20,7 +20,6 @@ USERS=(
 ## ================= Create Workspace Template =============================
 
 coder template push -d infra/templates/coder-template Workshop-Kubernetes -y
-coder template push -d infra/templates/coder-kaniko Workshop-Kaniko -y
 
 # Function to generate a passphrase
 generate_passphrase() {
