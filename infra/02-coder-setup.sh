@@ -1,25 +1,26 @@
 #!/bin/bash
 
 # Coder API details
-CODER_API_URL="http://coder.gnomgnom.com/api/v2"
+CODER_API_URL="https://workstation.aks-dev0.amp-cloud.net/api/v2"
 
 # Define users in an array
 USERS=(
     "user1"
-    # "user2"
-    # "user3"
-    # "user4"
-    # "user5"
-    # "user6"
-    # "user7"
-    # "user8"
-    # "user9"
-    # "user10"
+    "user2"
+    "user3"
+    "user4"
+    "user5"
+    "user6"
+    "user7"
+    "user8"
+    "user9"
+    "user10"
 )
 
 ## ================= Create Workspace Template =============================
 
 coder template push -d infra/templates/coder-template Workshop-Kubernetes -y
+coder template push -d infra/templates/coder-kaniko Workshop-Kaniko -y
 
 # Function to generate a passphrase
 generate_passphrase() {

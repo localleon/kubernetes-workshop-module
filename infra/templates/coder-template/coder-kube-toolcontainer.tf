@@ -311,6 +311,7 @@ resource "kubernetes_deployment" "main" {
             read_only  = false
           }
         }
+        automount_service_account_token = false # do not mount a service token into the coder workspaces
 
         volume {
           name = "home"
