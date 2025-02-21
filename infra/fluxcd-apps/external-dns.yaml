@@ -1,0 +1,52 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: kubernetes-sig-external-dns
+  namespace: flux-system
+spec:
+  interval: "1h"
+  url: https://kubernetes-sigs.github.io/external-dns/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: external-dns
+spec:
+  releaseName: external-dns 
+  chart:
+    spec:
+      chart: external-dns
+      version: '1.15.2'
+      sourceRef:
+        kind: HelmRepository
+        name: kubernetes-sig-external-dns
+        namespace: flux-system
+  interval: 50m
+  # Add your helm-values of chart here
+  values:
+    serviceAccount:
+      labels:
+        azure.workload.identity/use: "true"
+      annotations:
+        azure.workload.identity/client-id: 3e1bffb3-1aa6-4065-b452-8c4b791fbaca
+
+    podLabels:
+      azure.workload.identity/use: "true"
+
+    extraVolumes:
+      - name: azure-config-file
+        secret:
+          secretName: external-dns-azure
+
+    extraVolumeMounts:
+      - name: azure-config-file
+        mountPath: /etc/kubernetes
+        readOnly: true
+
+    provider:
+      name: azure
+
+    # Kubernetes_ resources to monitor for DNS entries.
+    sources:
+      - ingress

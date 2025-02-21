@@ -8,3 +8,4 @@ resources:
 - kube-prometheus-stack.yaml
 - cloudnativepg.yaml
 - kyverno.yaml
+- external-dns.yaml
