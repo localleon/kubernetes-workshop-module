@@ -37,7 +37,6 @@ spec:
       azure.workload.identity/use: "true"
 
     logLevel: debug
-    logFormat: json
 
     extraVolumes:
       - name: azure-config-file
