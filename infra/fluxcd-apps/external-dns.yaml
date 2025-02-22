@@ -25,18 +25,31 @@ spec:
   interval: 50m
   # Add your helm-values of chart here
   values:
-    # Settings for workload identity 
+    podLabels: 
+      "azure.workload.identity/use": "true"
+
     serviceAccount:
-
-      labels:
+      create: true
+      labels: 
         azure.workload.identity/use: "true"
-      annotations:
-        azure.workload.identity/client-id: 29dfb89d-45bc-488f-80b5-a7b41815b20b
-
-    podLabels:
-      azure.workload.identity/use: "true"
+      annotations: 
+        azure.workload.identity/client-id: 128766ab-2ae0-48c5-a602-9bfe28941d1c
+      automountServiceAccountToken: true
 
     logLevel: debug
+    logFormat: json
+    interval: 1m
+
+    provider:
+      name: azure # or 'azure' for public DNS
+
+    sources:
+      - ingress
+
+    dnsPolicy: Default
+
+    domainFilters: 
+      - aks-dev0.amp-cloud.net
 
     extraVolumes:
       - name: azure-config-file
@@ -45,20 +58,5 @@ spec:
 
     extraVolumeMounts:
       - name: azure-config-file
-        mountPath: /etc/kubernetes
+        mountPath: /etc/kubernetes/
         readOnly: true
-
-    # Settings for domain listening 
-    provider:
-      name: azure
-
-    # Kubernetes_ resources to monitor for DNS entries.
-    sources:
-      - ingress
-    # -- Limit possible target zones by domain suffixes.
-    domainFilters: 
-      - aks-dev0.amp-cloud.net
-
-    # -- Extra arguments to provide to _ExternalDNS_.
-    extraArgs: 
-      - --azure-resource-group=rg-lraus-k8sdev

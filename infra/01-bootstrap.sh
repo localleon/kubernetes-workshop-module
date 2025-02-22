@@ -1,5 +1,5 @@
 # Update FluxCD manifests with current infrastructure setup! 
-userAssignedIdentityID=$(az identity list --query "[?name=='aks-dev0-external-dns-identity'].id" -o tsv)       
+userAssignedIdentityID=$(az identity list --query "[?name=='aks-dev0-external-dns-identity'].clientId" -o tsv)       
 sed -i "s|\(azure.workload.identity/client-id:\s*\).*|\1$userAssignedIdentityID|" infra/fluxcd-apps/external-dns.yaml
 
 # Commit and push changes to the repository
