@@ -27,6 +27,7 @@ spec:
   values:
     # Settings for workload identity 
     serviceAccount:
+
       labels:
         azure.workload.identity/use: "true"
       annotations:
@@ -34,6 +35,9 @@ spec:
 
     podLabels:
       azure.workload.identity/use: "true"
+
+    logLevel: debug
+    logFormat: json
 
     extraVolumes:
       - name: azure-config-file
