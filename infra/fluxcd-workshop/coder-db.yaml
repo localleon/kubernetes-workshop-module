@@ -10,6 +10,7 @@ metadata:
   namespace: coderdb
 spec:
   instances: 1
+  enablePDB: false # since we do not wan#t to block draining of cluster with only one db instance
   storage:
     storageClass: managed-csi
     size: 10Gi
