@@ -25,6 +25,7 @@ spec:
   interval: 50m
   # Add your helm-values of chart here
   values:
+    # Settings for workload identity 
     serviceAccount:
       labels:
         azure.workload.identity/use: "true"
@@ -44,9 +45,17 @@ spec:
         mountPath: /etc/kubernetes
         readOnly: true
 
+    # Settings for domain listening 
     provider:
       name: azure
 
     # Kubernetes_ resources to monitor for DNS entries.
     sources:
       - ingress
+    # -- Limit possible target zones by domain suffixes.
+    domainFilters: 
+      - aks-dev0.amp-cloud.net
+
+    # -- Extra arguments to provide to _ExternalDNS_.
+    extraArgs: 
+      - --azure-resource-group=rg-lraus-k8sdev
