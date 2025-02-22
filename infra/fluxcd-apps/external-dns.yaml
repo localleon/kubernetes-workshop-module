@@ -30,7 +30,7 @@ spec:
       labels:
         azure.workload.identity/use: "true"
       annotations:
-        azure.workload.identity/client-id: 0690c01b-22f4-490d-87af-a362ad3e0682
+        azure.workload.identity/client-id: 29dfb89d-45bc-488f-80b5-a7b41815b20b
 
     podLabels:
       azure.workload.identity/use: "true"
