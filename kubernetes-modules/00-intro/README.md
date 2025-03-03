@@ -1,3 +1,13 @@
+# Load Kubeconfig for kubectl 
+
+To connect with the cluster you need to load your corresponding kubeconfig. Just drop your kubeconfig-file into your home folder and set an absolute path via the `KUBECONFIG` environment variable to configure your credentials.
+
+```bash
+export KUBECONFIG=/home/coder/azurek8s-lab.yaml
+```
+
+After that you should be able to connect to the cluster and execute commands like `kubectl get nodes`
+
 # Namespaces
 
 * Check versions of local installation and remote server
