@@ -13,33 +13,33 @@ metadata:
   name: coder
   namespace: coderdb
 spec:
-  releaseName: coder  
+  releaseName: coder
   chart:
     spec:
-      chart: coder 
-      version: '2.18.0'
+      chart: coder
+      version: '2.31.6'
       sourceRef:
         kind: HelmRepository
         name: coder-charts
         namespace: flux-system
   interval: 1m
   values:
-  # Add your helm-values of chart here
+    # Add your helm-values of chart here
     coder:
       env:
-        - name: CODER_PG_CONNECTION_URL
-          valueFrom:
-            secretKeyRef:
-              # You'll need to create a secret called coder-db-url with your
-              # Postgres connection URL like:
-              # postgres://coder:password@postgres:5432/coder?sslmode=disable
-              name: coderdb-app
-              key: uri
+      - name: CODER_PG_CONNECTION_URL
+        valueFrom:
+          secretKeyRef:
+            # You'll need to create a secret called coder-db-url with your
+            # Postgres connection URL like:
+            # postgres://coder:password@postgres:5432/coder?sslmode=disable
+            name: coderdb-app
+            key: uri
       ingress:
         enable: true
         className: traefik
         host: "workstation.aks-dev0.amp-cloud.net"
-        annotations: 
+        annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-prod"
         tls:
           enable: true

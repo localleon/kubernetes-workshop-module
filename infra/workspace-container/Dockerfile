@@ -1,36 +1,36 @@
-FROM ubuntu
+FROM docker.io/ubuntu:latest
 
 RUN apt-get update \
-    && apt-get install -y \
-    sudo \
-    curl \
-    git \
-    bash-completion \
-    cmake \
-    coreutils \
-    curl \
-    findutils \
-    jq \
-    less \
-    nano \
-    nmap \
-    openssl \
-    openssh-client \
-    python3 \
-    python3-pip \
-    python3-dev \
-    ripgrep \
-    rsync \
-    sudo \
-    tar \
-    tree \
-    tzdata \
-    util-linux \
-    yamllint \
-    yq \
-    unzip \
-    software-properties-common \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get install -y \
+  sudo \
+  curl \
+  git \
+  bash-completion \
+  cmake \
+  coreutils \
+  curl \
+  findutils \
+  jq \
+  less \
+  nano \
+  nmap \
+  openssl \
+  openssh-client \
+  python3 \
+  python3-pip \
+  python3-dev \
+  ripgrep \
+  rsync \
+  sudo \
+  tar \
+  tree \
+  tzdata \
+  util-linux \
+  yamllint \
+  yq \
+  unzip \
+  software-properties-common \
+  && rm -rf /var/lib/apt/lists/*
 
 # install kubectl
 RUN \
@@ -57,8 +57,13 @@ RUN curl -LO https://github.com/kyverno/kyverno/releases/download/v1.12.0/kyvern
 
 ARG USER=coder
 RUN useradd --groups sudo --shell /bin/bash ${USER} \
-    && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/${USER} \
-    && chmod 0440 /etc/sudoers.d/${USER}
+  && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/${USER} \
+  && chmod 0440 /etc/sudoers.d/${USER}
+
+# Allow passwordless sudo for any workspace user in the sudo group
+RUN if id -u ubuntu >/dev/null 2>&1; then usermod -aG sudo ubuntu; fi \
+  && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/90-sudo-nopasswd \
+  && chmod 0440 /etc/sudoers.d/90-sudo-nopasswd
 
 # Fix Permissions for different apps 
 RUN mkdir /home/coder && chown -R ${USER}:${USER} /home/${USER}

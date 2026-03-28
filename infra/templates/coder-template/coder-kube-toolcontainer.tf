@@ -285,7 +285,7 @@ resource "kubernetes_deployment" "main" {
 
         container {
           name              = "dev"
-          image             = "ghcr.io/localleon/kubernetes-workshop-module/kubernetes-toolcontainer:latest"
+          image             = "ghcr.io/localleon/kubernetes-workshop-module/kubernetes-toolcontainer:v1.0.0"
           image_pull_policy = "Always"
           command           = ["sh", "-c", coder_agent.main.init_script]
           security_context {

@@ -1,25 +1,48 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TEMPLATE_DIR="$SCRIPT_DIR/templates/coder-template"
+
 # Coder API details
 CODER_API_URL="https://workstation.aks-dev0.amp-cloud.net/api/v2"
 
 # Define users in an array
 USERS=(
-    "user1"
-    "user2"
-    "user3"
-    "user4"
-    "user5"
-    "user6"
-    "user7"
-    "user8"
-    "user9"
-    "user10"
+    "team1"
+    "team2"
+    "team3"
+    "team4"
+    "team5"
+    "team6"
+    "team7"
+    "team8"
+    "team9"
+    "team10"
+    "team11"
+    "team12"
+    "team13"
+    "team14"
+    "team15"
+    "team16"
+    "team17"
+    "team18"
+    "team19"
+    "team20"
+    "team21"
+    "team22"
+    "team23"
+    "team24"
+    "team25"
+    "team26"
+    "team27"
+    "team28"
+    "team29"
+    "team30"
 )
 
 ## ================= Create Workspace Template =============================
 
-coder template push -d infra/templates/coder-template Workshop-Kubernetes -y
+coder templates push -d "$TEMPLATE_DIR" Workshop-Kubernetes -y
 
 # Function to generate a passphrase
 generate_passphrase() {
