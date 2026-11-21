@@ -1,16 +1,6 @@
 # Cronjobs
 
-## Preparation
-
-* Before you begin with the actual exercise please make sure to follow these steps to work in your own environment:
-
-  ```shell
-  kubectl config set-context --current --namespace=<YOURNAME>
-  ```
-
-* Clone this repository to your working station and change into the directory for this exercise
-
----
+Use the team namespace selected in the [intro](../00-intro).
 
 ## Exercise
 

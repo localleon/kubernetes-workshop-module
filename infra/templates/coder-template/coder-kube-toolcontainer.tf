@@ -110,12 +110,10 @@ resource "coder_agent" "main" {
   startup_script = <<-EOT
     set -e
 
-    # Install the latest code-server.
-    # Append "--version x.x.x" to install a specific version of code-server.
-    curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server
-
-    # Start code-server in the background.
-    /tmp/code-server/bin/code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
+    if [ ! -e "$HOME/.bashrc" ]; then
+      cp /etc/skel/.bashrc "$HOME/.bashrc"
+    fi
+    code-server --auth none --bind-addr 127.0.0.1:13337 >/tmp/code-server.log 2>&1 &
   EOT
 
   # The following metadata blocks are optional. They are used to display
@@ -285,11 +283,11 @@ resource "kubernetes_deployment" "main" {
 
         container {
           name              = "dev"
-          image             = "ghcr.io/localleon/kubernetes-workshop-module/kubernetes-toolcontainer:v1.0.0"
-          image_pull_policy = "Always"
+          image             = "ghcr.io/localleon/kubernetes-workshop-module/kubernetes-toolcontainer:2026.11.1"
+          image_pull_policy = "IfNotPresent"
           command           = ["sh", "-c", coder_agent.main.init_script]
           security_context {
-            run_as_user = "1000"
+            run_as_user = 1000
           }
           env {
             name  = "CODER_AGENT_TOKEN"

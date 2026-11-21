@@ -1,3 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: external-dns
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -13,11 +18,13 @@ metadata:
   name: external-dns
   namespace: external-dns
 spec:
-  releaseName: external-dns 
+  releaseName: external-dns
+  upgrade:
+    crds: CreateReplace
   chart:
     spec:
       chart: external-dns
-      version: '1.15.2'
+      version: '1.24.0'
       sourceRef:
         kind: HelmRepository
         name: kubernetes-sig-external-dns
@@ -36,7 +43,8 @@ spec:
         azure.workload.identity/client-id: 128766ab-2ae0-48c5-a602-9bfe28941d1c
       automountServiceAccountToken: true
 
-    logLevel: debug
+    policy: upsert-only
+    logLevel: info
     logFormat: json
     interval: 1m
 

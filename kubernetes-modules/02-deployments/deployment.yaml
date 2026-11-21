@@ -11,10 +11,9 @@ spec:
       app: declarative-deploy
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: declarative-deploy
     spec:
       containers:
-      - image: "syseleven/metakube-hello:2.0.0"
+      - image: ghcr.io/nginx/nginx-unprivileged:1.30.2-alpine@sha256:de3e40ec8b7debd7194fc798d4bbfb102c7f8b012b2c73032816b5f72393acdd
         name: nginx

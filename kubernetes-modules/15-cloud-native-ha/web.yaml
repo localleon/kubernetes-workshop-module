@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ha-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ha-web
+  template:
+    metadata:
+      labels:
+        app: ha-web
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: ha-web
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: web
+          image: ghcr.io/nginx/nginx-unprivileged:1.30.2-alpine@sha256:de3e40ec8b7debd7194fc798d4bbfb102c7f8b012b2c73032816b5f72393acdd
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ha-web
+spec:
+  type: NodePort
+  externalTrafficPolicy: Local
+  selector:
+    app: ha-web
+  ports:
+    - port: 80
+      targetPort: http
+      nodePort: 30080

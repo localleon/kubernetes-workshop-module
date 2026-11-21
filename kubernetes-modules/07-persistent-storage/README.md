@@ -1,27 +1,10 @@
 # Persistent Storage
 
-## Preparation
-
-* Before you begin with the actual exercise please make sure to follow these steps to work in your own environment:
-
-  ```shell
-  kubectl create ns <YOURNAME>
-  kubectl config set-context --current --namespace=<YOURNAME>
-  ```
-
-* Clone this repository to your working station and change into the directory for this exercise
-
----
+Use the team namespace selected in the [intro](../00-intro).
 
 ## Exercise
 
 ### Deploy the resources
-
-* Show available storageclasses
-
-  ```sh
-  kubectl get storageclass
-  ```
 
 * Deploy Persistent Volume Claim
 
@@ -30,7 +13,7 @@
   kubectl get -f pvc.yaml
   ```
 
-* *Note that the pvc will be pending until a consumer pod is up*
+The claim uses the cluster’s default StorageClass. It can stay pending until a Pod uses it.
 
 * Deploy Application and Service
 

@@ -1,13 +1,10 @@
-FROM registry.access.redhat.com/ubi9
-RUN dnf update -y
-RUN dnf install java-17-openjdk-devel -y
+FROM registry.access.redhat.com/ubi9/ubi@sha256:6636b79fba9e5044360366f189333c30b5ce528efd92c40c68b074592b971fcd
 
-RUN java -version && javac -version
+RUN dnf install -y java-17-openjdk-devel && dnf clean all
 
 WORKDIR /app
-
-COPY HelloWorld.java .
-
+COPY --chmod=0644 ["Java Code/HelloWorld.java", "./"]
 RUN javac HelloWorld.java
 
-CMD ["java","HelloWorld"]
+USER 1001:0
+CMD ["java", "HelloWorld"]
