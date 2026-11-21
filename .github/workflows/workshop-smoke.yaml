@@ -74,7 +74,7 @@ jobs:
           http() { toolbox curl -fsS --max-time 2 http://network-demo/ -o /dev/null; }
 
           toolbox getent hosts network-demo
-          http
+          toolbox curl -fsS --max-time 2 --retry 5 --retry-all-errors --retry-delay 1 http://network-demo/ -o /dev/null
           learner apply -f deny-all.yaml
           for attempt in {1..10}; do
             if toolbox sh -c 'curl -fsS --max-time 2 http://network-demo/ -o /dev/null; test "$?" -eq 28'; then break; fi
@@ -113,14 +113,14 @@ jobs:
       - name: Build and run Java images
         run: |
           for dockerfile in 01_Full_RHEL/Dockerfile-1 02_Min_RHEL/Dockerfile-2 03_Multi_Stage_Java/Dockerfile 04_distroless/Dockerfile-4; do
-            podman build -f "$dockerfile" -t workshop-java:ci .
+            podman build -f "$dockerfile" -t workshop-java:ci . || podman build -f "$dockerfile" -t workshop-java:ci .
             podman run --rm workshop-java:ci | grep -Fx 'Hallo, ich bin eine Java App in einem Container'
           done
 
       - name: Build and probe HTTP images
         run: |
           for example in nginx rust python; do
-            podman build -t "workshop-$example:ci" "$example"
+            podman build -t "workshop-$example:ci" "$example" || podman build -t "workshop-$example:ci" "$example"
             (
               container=$(podman run -d -p 127.0.0.1::8080 "workshop-$example:ci")
               trap 'podman rm -f "$container" >/dev/null' EXIT
