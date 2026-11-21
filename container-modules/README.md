@@ -2,6 +2,8 @@
 
 Open a terminal in `container-modules/`. On your machine, install [Podman](https://podman.io/docs/installation). In Coder, select **Enable Podman** in your lab workspace and prefix each `podman` command with `sudo`.
 
+Each tutorial starts with a working image and walks you through a change you can verify.
+
 ## Java
 
 Build the same program with each base image. Run `podman image ls workshop-java` to compare their sizes.

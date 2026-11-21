@@ -1,12 +1,16 @@
 # Java with a separate runtime
 
-Build the JAR in an OpenJDK development image. Copy the JAR into a smaller OpenJDK runtime image.
-
-From [`container-modules/`](../README.md), build and run the image.
+Build the JAR with the JDK, then copy it into the OpenJDK runtime image. Run these commands from [`container-modules/`](../README.md).
 
 ```sh
 podman build -f 03_Multi_Stage_Java/Dockerfile -t workshop-java:ubi-runtime .
 podman run --rm workshop-java:ubi-runtime
 ```
 
-The program prints `Hallo, ich bin eine Java App in einem Container` and exits. Use `podman image ls workshop-java` to compare the results.
+Change `USER 185:0` to `USER 1001:0` in `03_Multi_Stage_Java/Dockerfile`. Rebuild and check the configured user. The greeting should still print.
+
+```sh
+podman build -f 03_Multi_Stage_Java/Dockerfile -t workshop-java:ubi-runtime-v2 .
+podman image inspect --format '{{.Config.User}}' workshop-java:ubi-runtime-v2
+podman run --rm workshop-java:ubi-runtime-v2
+```
