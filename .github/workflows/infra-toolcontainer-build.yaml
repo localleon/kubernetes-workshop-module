@@ -48,6 +48,63 @@ jobs:
             kyverno version
             code-server --version
           '
+      - name: Build and run an image inside a privileged workspace pod
+        env:
+          TOOL_IMAGE: ${{ steps.image.outputs.name }}
+          KIND_VERSION: v0.33.0
+        shell: bash
+        run: |
+          tools_dir=$(mktemp -d)
+          trap 'if [[ -x "$tools_dir/kind" ]]; then "$tools_dir/kind" delete cluster --name coder-podman; fi; rm -rf "$tools_dir"' EXIT
+          (
+            cd "$tools_dir"
+            curl -fsSLO "https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-linux-amd64"
+            curl -fsSLO "https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-linux-amd64.sha256sum"
+            sha256sum --check kind-linux-amd64.sha256sum
+            install -m 0755 kind-linux-amd64 kind
+          )
+          docker run --rm "$TOOL_IMAGE" cat /usr/local/bin/kubectl > "$tools_dir/kubectl"
+          chmod +x "$tools_dir/kubectl"
+          export PATH="$tools_dir:$PATH"
+          export KUBECONFIG="$tools_dir/kubeconfig"
+          kind create cluster --name coder-podman --wait 120s
+          kind load docker-image "$TOOL_IMAGE" --name coder-podman
+          kubectl apply -f - <<EOF
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: coder-workspace
+          spec:
+            automountServiceAccountToken: false
+            securityContext:
+              runAsUser: 1000
+              fsGroup: 1000
+            containers:
+              - name: dev
+                image: "$TOOL_IMAGE"
+                imagePullPolicy: Never
+                command: ["sleep", "infinity"]
+                securityContext:
+                  runAsUser: 1000
+                  privileged: true
+                volumeMounts:
+                  - name: containers
+                    mountPath: /var/lib/containers
+            volumes:
+              - name: containers
+                emptyDir: {}
+          EOF
+          kubectl wait --for=condition=Ready pod/coder-workspace --timeout=120s
+          tar -C container-modules -cf - python rust | kubectl exec -i coder-workspace -- tar -xf - -C /tmp
+          kubectl exec coder-workspace -- sh -ec '
+            test "$(id -u)" = 1000
+            sudo podman info
+            sudo podman build -t workshop-python:ci /tmp/python
+            sudo podman build -t workshop-rust:ci /tmp/rust
+            sudo podman run --rm -d -p 127.0.0.1:8080:8080 workshop-python:ci
+            curl -fsS --retry 5 --retry-all-errors --retry-delay 1 --max-time 5 http://127.0.0.1:8080/ |
+              grep -Fx "Hello from Python"
+          '
       - uses: docker/login-action@v4
         if: github.event_name == 'push'
         with:

@@ -2,7 +2,7 @@
 
 Build the Python image in the [container module](../../../container-modules/README.md). Use a registry that your team namespace can pull from.
 
-On the machine where you built the image, sign in to your registry and push it. Replace the registry and repository below. The image must match the cluster's CPU architecture.
+On the machine where you built the image, sign in to your registry and push it. Replace the registry and repository below. The image must match the cluster's CPU architecture. In Coder, prefix each `podman` command with `sudo`.
 
 ```sh
 IMAGE=ghcr.io/your-account/workshop-python:v1

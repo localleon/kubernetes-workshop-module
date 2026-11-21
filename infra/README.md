@@ -20,10 +20,8 @@ The scripts default to `team1` through `team30`. Use the same `WORKSHOP_TEAM_COU
 
 At the end, run `infra/00-cleanup.sh --confirm` after checking the target context and server. It deletes workshop workspaces, team accounts, and labeled team namespaces. Remove the local Coder credentials file after distributing the credentials.
 
-## Container build workspaces
+## Container builds in Coder
 
-The `Workshop-Kubernetes` image ships neither Docker nor Podman. The template mounts the learner's home volume and provides no container engine socket or sidecar. Learners can build locally with [Podman](https://podman.io/docs/installation).
+Use **Enable Podman** when creating or updating a lab workspace. This makes the workspace pod privileged. Enable it only on the lab cluster, in a namespace where admission allows privileged pods. Workspaces run Podman with `sudo` and store images for the lifetime of the workspace pod.
 
-For browser-only learners, offer a separate [Linux VM workspace](https://registry.coder.com/templates/coder/azure-linux) per team with rootless Podman in its image or startup script. On Ubuntu, install `podman` and `uidmap` and give the workspace user subordinate UID and GID ranges. In a test workspace, run `podman info` and build and run the Python exercise as the workspace user before class.
-
-To build inside the existing pod-based template, pilot [Coder’s rootless Podman setup](https://coder.com/docs/admin/templates/extending-templates/docker-in-workspaces/#rootless-podman) on the lab node pool. It requires a FUSE device and a compatible security profile.
+After the new tool image is published, push the updated Coder template. In a Podman-enabled workspace, run `sudo podman info` and try the [Python build and run exercise](../container-modules/README.md#nginx-rust-and-python).

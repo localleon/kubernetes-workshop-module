@@ -13,7 +13,8 @@ COPY .bashrc /etc/skel/.bashrc
 RUN set -eu; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      bash-completion ca-certificates curl dnsutils git jq less nano openssh-client sudo tzdata; \
+      bash-completion ca-certificates curl dnsutils git jq less nano openssh-client \
+      iptables netavark podman sudo tzdata; \
     rm -rf /var/lib/apt/lists/*; \
     kubectl_url="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"; \
     curl -fsSLo /tmp/kubectl "$kubectl_url"; \
@@ -39,6 +40,8 @@ RUN set -eu; \
     printf 'coder ALL=(ALL) NOPASSWD:ALL\n' > /etc/sudoers.d/coder && \
     chmod 0440 /etc/sudoers.d/coder && \
     install -o coder -g coder -m 0644 /etc/skel/.bashrc /home/coder/.bashrc
+
+COPY podman.conf /etc/containers/containers.conf.d/90-workshop.conf
 
 USER coder
 WORKDIR /home/coder

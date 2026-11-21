@@ -1,6 +1,6 @@
 # Build a container image
 
-Install [Podman](https://podman.io/docs/installation), then run these commands from `container-modules/`. Use your own machine or an instructor-provided Linux build workspace.
+Run these commands from `container-modules/`. On your own machine, install [Podman](https://podman.io/docs/installation). In the lab Coder workspace, select **Enable Podman** and prefix each `podman` command with `sudo`.
 
 ## Java
 
