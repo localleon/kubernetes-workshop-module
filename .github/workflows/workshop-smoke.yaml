@@ -131,3 +131,56 @@ jobs:
               fi
             )
           done
+
+      - name: Verify the tutorial edits
+        run: |
+          exercises=$(mktemp -d)
+          trap 'rm -rf "$exercises"' EXIT
+          cp -a . "$exercises/"
+          cd "$exercises"
+
+          build() { podman build "$@" || podman build "$@"; }
+          greeting='Hallo, ich bin eine Java App in einem Container'
+
+          sed -i 's/dnf install -y java-17-openjdk-devel/dnf install -y java-17-openjdk-devel jq/' 01_Full_RHEL/Dockerfile-1
+          build -f 01_Full_RHEL/Dockerfile-1 -t workshop-java:ubi-jq .
+          podman run --rm workshop-java:ubi-jq jq --version | grep '^jq-'
+
+          printf '\nLABEL org.opencontainers.image.title="Workshop Java on minimal UBI"\n' >> 02_Min_RHEL/Dockerfile-2
+          build -f 02_Min_RHEL/Dockerfile-2 -t workshop-java:ubi-minimal-v2 .
+          podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.title" }}' workshop-java:ubi-minimal-v2 |
+            grep -Fx 'Workshop Java on minimal UBI'
+
+          sed -i 's/^USER 185:0$/USER 1001:0/' 03_Multi_Stage_Java/Dockerfile
+          build -f 03_Multi_Stage_Java/Dockerfile -t workshop-java:ubi-runtime-v2 .
+          podman image inspect --format '{{.Config.User}}' workshop-java:ubi-runtime-v2 | grep -Fx '1001:0'
+          podman run --rm workshop-java:ubi-runtime-v2 | grep -Fx "$greeting"
+
+          printf '\nENV JAVA_TOOL_OPTIONS="-Xmx64m"\n' >> 04_distroless/Dockerfile-4
+          build -f 04_distroless/Dockerfile-4 -t workshop-java:distroless-v2 .
+          output=$(podman run --rm workshop-java:distroless-v2 2>&1)
+          grep -Fx 'Picked up JAVA_TOOL_OPTIONS: -Xmx64m' <<< "$output"
+          grep -Fx "$greeting" <<< "$output"
+
+          printf 'About the workshop\n' > nginx/about.html
+          printf '\nCOPY --chmod=0644 about.html /usr/share/nginx/html/about.html\n' >> nginx/Dockerfile
+          sed -i 's/Hello from Rust/Hello from my Rust image/' rust/src/main.rs
+          sed -i '/self.end_headers()/i\        self.send_header("X-Workshop", "python")' python/app.py
+
+          for example in nginx rust python; do
+            build -t "workshop-$example:v2" "$example"
+            (
+              container=$(podman run -d -p 127.0.0.1::8080 "workshop-$example:v2")
+              trap 'podman rm -f "$container" >/dev/null' EXIT
+              address=$(podman port "$container" 8080/tcp)
+              route=/
+              if [[ "$example" == nginx ]]; then route=/about.html; fi
+              curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 1 --max-time 5 \
+                --dump-header headers --output response "http://$address$route"
+              case "$example" in
+                nginx) grep -Fx 'About the workshop' response ;;
+                rust) grep -Fx 'Hello from my Rust image' response ;;
+                python) tr -d '\r' < headers | grep -Fxi 'X-Workshop: python' ;;
+              esac
+            )
+          done
