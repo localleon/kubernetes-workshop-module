@@ -19,3 +19,11 @@ For an existing lab, snapshot the Coder database and Rancher before upgrading. F
 The scripts default to `team1` through `team30`. Use the same `WORKSHOP_TEAM_COUNT` for each script to run a smaller workshop. Rerun kubeconfig generation to renew tokens.
 
 At the end, run `infra/00-cleanup.sh --confirm` after checking the target context and server. It deletes workshop workspaces, team accounts, and labeled team namespaces. Remove the local Coder credentials file after distributing the credentials.
+
+## Container build workspaces
+
+The `Workshop-Kubernetes` image ships neither Docker nor Podman. The template mounts the learner's home volume and provides no container engine socket or sidecar. Learners can build locally with [Podman](https://podman.io/docs/installation).
+
+For browser-only learners, offer a separate [Linux VM workspace](https://registry.coder.com/templates/coder/azure-linux) per team with rootless Podman in its image or startup script. On Ubuntu, install `podman` and `uidmap` and give the workspace user subordinate UID and GID ranges. In a test workspace, run `podman info` and build and run the Python exercise as the workspace user before class.
+
+To build inside the existing pod-based template, pilot [Coder’s rootless Podman setup](https://coder.com/docs/admin/templates/extending-templates/docker-in-workspaces/#rootless-podman) on the lab node pool. It requires a FUSE device and a compatible security profile.

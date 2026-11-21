@@ -4,8 +4,8 @@ Lerne Container zu bauen, Anwendungen mit Kubernetes zu betreiben und Änderunge
 
 ## Get started
 
-- **Coder** — Open the workshop URL, create a workspace from `Workshop-Kubernetes`, then open its code-server terminal.
-- **Local** — Install [kubectl](https://kubernetes.io/docs/tasks/tools/). For container builds, use Docker or Podman and a registry the lab can pull from.
+- **Coder** — Open the workshop URL, create a workspace from `Workshop-Kubernetes`, then open its code-server terminal. For image builds, use local Podman or an instructor-provided Linux build workspace.
+- **Local** — Install [kubectl](https://kubernetes.io/docs/tasks/tools/). Use [Podman](https://podman.io/docs/installation) for the container build exercises.
 
 In either terminal, create `~/.kube` and save the supplied kubeconfig as `~/.kube/workshop.yaml`. Then clone the workshop.
 

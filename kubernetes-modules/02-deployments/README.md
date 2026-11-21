@@ -25,3 +25,5 @@ kubectl set image deployment/declarative-deploy nginx=ghcr.io/nginx/nginx-unpriv
 kubectl rollout status deployment/declarative-deploy --timeout=120s
 kubectl delete deployment nginx-deploy declarative-deploy
 ```
+
+Optional exercise: [Deploy the Python image you built](python/README.md).
