@@ -1,6 +1,6 @@
 # Deploy your own image
 
-Build the Python image in the [container module](../../../container-modules/README.md). Use a registry that your team namespace can pull from.
+Build the Python image in the [Python container exercise](../../../container-modules/python/README.md). Use a registry that your team namespace can pull from.
 
 On the machine where you built the image, sign in to your registry and push it. Replace the registry and repository below. The image must match the cluster's CPU architecture. In Coder, prefix each `podman` command with `sudo`.
 

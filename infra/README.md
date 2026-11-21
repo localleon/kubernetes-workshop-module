@@ -10,13 +10,16 @@ Use AKS **1.36.x** with an enforced NetworkPolicy data plane, Azure Workload Ide
 
 For an existing lab, snapshot the Coder database and Rancher before upgrading. Follow each vendor's supported upgrade path, including Flux API migration, before reconciling the new pins. Remove the old workshop `global-view` ClusterRoleBindings and long-lived learner token Secrets to revoke legacy access.
 
-## Learners
+## Prepare teams before the workshop
 
-1. Set `CODER_URL` to the workshop Coder server and log in with `coder login "$CODER_URL"`.
-2. Run `infra/02-coder-setup.sh` and `infra/03-generate-kubeconfigs.sh`.
-3. Hand each team its own Coder credentials and kubeconfig from `infra/workshop-kubeconfigs/`. The kubeconfig requests an eight-hour token by default.
+Workshop leaders create the Coder accounts, namespaces, and kubeconfigs. Run the following from the repository root shortly before class.
 
-The scripts default to `team1` through `team30`. Use the same `WORKSHOP_TEAM_COUNT` for each script to run a smaller workshop. Rerun kubeconfig generation to renew tokens.
+1. Set `WORKSHOP_CONTEXT` to the lab admin context and `CODER_URL` to the lab Coder URL. Set `WORKSHOP_TEAM_COUNT` if you need fewer than 30 teams. Keep the same count for setup and cleanup.
+2. Log in with `coder login "$CODER_URL"`, then run `infra/02-coder-setup.sh` and `infra/03-generate-kubeconfigs.sh`. The scripts create matching Coder accounts and Kubernetes namespaces for `team1`, `team2`, and so on.
+3. Run `kubectl --kubeconfig infra/workshop-kubeconfigs/team1.kubeconfig get pods` to check access as a learner.
+4. Give each team the Coder URL, its login from `infra/workshop-kubeconfigs/coder-credentials.*.tsv`, and its own `teamN.kubeconfig` from the same directory. The file already selects their namespace.
+
+The kubeconfig requests an eight-hour token by default. Rerun kubeconfig generation and distribute a fresh file if a team needs a replacement.
 
 At the end, run `infra/00-cleanup.sh --confirm` after checking the target context and server. It deletes workshop workspaces, team accounts, and labeled team namespaces. Remove the local Coder credentials file after distributing the credentials.
 
@@ -24,4 +27,4 @@ At the end, run `infra/00-cleanup.sh --confirm` after checking the target contex
 
 Use **Enable Podman** when creating or updating a lab workspace. This makes the workspace pod privileged. Enable it only on the lab cluster, in a namespace where admission allows privileged pods. Workspaces run Podman with `sudo` and store images for the lifetime of the workspace pod.
 
-After the new tool image is published, push the updated Coder template. In a Podman-enabled workspace, run `sudo podman info` and try the [Python build and run exercise](../container-modules/README.md#nginx-rust-and-python).
+After the new tool image is published, push the updated Coder template. In a Podman-enabled workspace, run `sudo podman info` and try the [Python build and run exercise](../container-modules/python/README.md).

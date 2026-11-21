@@ -1,35 +1,18 @@
-# Build a container image
+# Build containers
 
-Run these commands from `container-modules/`. On your own machine, install [Podman](https://podman.io/docs/installation). In the lab Coder workspace, select **Enable Podman** and prefix each `podman` command with `sudo`.
+Open a terminal in `container-modules/`. On your machine, install [Podman](https://podman.io/docs/installation). In Coder, select **Enable Podman** in your lab workspace and prefix each `podman` command with `sudo`.
 
 ## Java
 
-Set `DOCKERFILE` to one of the four choices.
+Build the same program with each base image. Run `podman image ls workshop-java` to compare their sizes.
 
-| Image | Dockerfile |
-| --- | --- |
-| UBI standard | `01_Full_RHEL/Dockerfile-1` |
-| UBI minimal | `02_Min_RHEL/Dockerfile-2` |
-| UBI OpenJDK runtime | `03_Multi_Stage_Java/Dockerfile` |
-| Distroless | `04_distroless/Dockerfile-4` |
+- [Standard UBI](01_Full_RHEL/README.md)
+- [Minimal UBI](02_Min_RHEL/README.md)
+- [Multi-stage with the UBI OpenJDK runtime](03_Multi_Stage_Java/README.md)
+- [Multi-stage with Distroless](04_distroless/README.md)
 
-```sh
-DOCKERFILE=03_Multi_Stage_Java/Dockerfile
-podman build -f "$DOCKERFILE" -t workshop-java:v1 .
-podman run --rm workshop-java:v1
-podman image ls workshop-java
-```
+## HTTP
 
-Each prints `Hallo, ich bin eine Java App in einem Container`. Compare the image sizes after each build.
-
-## NGINX, Rust, and Python
-
-Set `EXAMPLE` to `nginx`, `rust`, or `python`.
-
-```sh
-EXAMPLE=python
-podman build -t "workshop-$EXAMPLE:v1" "$EXAMPLE"
-podman run --rm -p 127.0.0.1:8080:8080 "workshop-$EXAMPLE:v1"
-```
-
-In another terminal, run `curl -fsS http://127.0.0.1:8080/`. Stop the container with Ctrl+C.
+- [NGINX static site](nginx/README.md)
+- [Rust HTTP server](rust/README.md)
+- [Python HTTP server](python/README.md)

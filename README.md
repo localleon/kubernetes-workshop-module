@@ -4,19 +4,17 @@ Lerne Container zu bauen, Anwendungen mit Kubernetes zu betreiben und Änderunge
 
 ## Get started
 
-- **Coder** — Open the workshop URL, create a workspace from `Workshop-Kubernetes`, then open its code-server terminal. Select **Enable Podman** when you need to build images.
-- **Local** — Install [kubectl](https://kubernetes.io/docs/tasks/tools/). Use [Podman](https://podman.io/docs/installation) for the container build exercises.
+- **Coder** — Sign in with the URL and team credentials from your workshop leader. Create a workspace from `Workshop-Kubernetes` and open its code-server terminal. Select **Enable Podman** for the container exercises.
+- **Local** — Install [Podman](https://podman.io/docs/installation) for the container exercises and [kubectl](https://kubernetes.io/docs/tasks/tools/) for the Kubernetes exercises.
 
-In either terminal, create `~/.kube` and save the supplied kubeconfig as `~/.kube/workshop.yaml`. Then clone the workshop.
+Clone the workshop in your terminal.
 
 ```sh
-chmod 600 ~/.kube/workshop.yaml
-export KUBECONFIG="$HOME/.kube/workshop.yaml"
 git clone https://github.com/localleon/kubernetes-workshop-module.git
 cd kubernetes-workshop-module
 ```
 
-Your context selects your team's namespace.
+Your workshop leader provides a team kubeconfig for the Kubernetes exercises. See the [leader setup](infra/README.md#prepare-teams-before-the-workshop).
 
 ## Workshop
 

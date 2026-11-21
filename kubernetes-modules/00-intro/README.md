@@ -1,8 +1,9 @@
 # Connect to the cluster
 
-Use the kubeconfig provided by your instructor. Its context already selects your team namespace.
+Your workshop leader creates your team namespace and gives you a kubeconfig. Create `~/.kube` if needed and save it as `~/.kube/workshop.yaml`. Its context already selects your team's namespace.
 
 ```sh
+chmod 600 ~/.kube/workshop.yaml
 export KUBECONFIG="$HOME/.kube/workshop.yaml"
 kubectl config current-context
 kubectl config view --minify -o jsonpath='{.contexts[0].context.namespace}{"\n"}'
