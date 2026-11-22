@@ -1,34 +1,118 @@
-name: Build and Push Docker Image for Toolchain Container
+name: Workshop tool image
 
 on:
+  pull_request:
+    paths:
+      - infra/workspace-container/**
+      - infra/templates/coder-template/**
+      - .github/workflows/infra-toolcontainer-build.yaml
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - infra/workspace-container/**
+      - infra/templates/coder-template/**
+      - .github/workflows/infra-toolcontainer-build.yaml
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - name: Read the Coder image reference
+        id: image
+        run: |
+          image=$(awk -F '"' '$0 ~ /kubernetes-toolcontainer:/ { print $2 }' infra/templates/coder-template/*.tf)
+          [[ "$image" == "ghcr.io/${GITHUB_REPOSITORY,,}/kubernetes-toolcontainer:"* ]]
+          printf 'name=%s\n' "$image" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v7
+        with:
+          context: infra/workspace-container/
+          load: true
+          tags: ${{ steps.image.outputs.name }}
+      - name: Smoke test the tool image
+        env:
+          TOOL_IMAGE: ${{ steps.image.outputs.name }}
+        run: |
+          docker run --rm "$TOOL_IMAGE" sh -ec '
+            test "$(id -u)" = 1000
+            kubectl version --client
+            k9s version
+            kyverno version
+            code-server --version
+          '
+      - name: Build and run an image inside a privileged workspace pod
+        env:
+          TOOL_IMAGE: ${{ steps.image.outputs.name }}
+          KIND_VERSION: v0.33.0
+        shell: bash
+        run: |
+          tools_dir=$(mktemp -d)
+          trap 'if [[ -x "$tools_dir/kind" ]]; then "$tools_dir/kind" delete cluster --name coder-podman; fi; rm -rf "$tools_dir"' EXIT
+          (
+            cd "$tools_dir"
+            curl -fsSLO "https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-linux-amd64"
+            curl -fsSLO "https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-linux-amd64.sha256sum"
+            sha256sum --check kind-linux-amd64.sha256sum
+            install -m 0755 kind-linux-amd64 kind
+          )
+          docker run --rm "$TOOL_IMAGE" cat /usr/local/bin/kubectl > "$tools_dir/kubectl"
+          chmod +x "$tools_dir/kubectl"
+          export PATH="$tools_dir:$PATH"
+          export KUBECONFIG="$tools_dir/kubeconfig"
+          kind create cluster --name coder-podman --wait 120s
+          kind load docker-image "$TOOL_IMAGE" --name coder-podman
+          kubectl apply -f - <<EOF
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: coder-workspace
+          spec:
+            automountServiceAccountToken: false
+            securityContext:
+              runAsUser: 1000
+              fsGroup: 1000
+            containers:
+              - name: dev
+                image: "$TOOL_IMAGE"
+                imagePullPolicy: Never
+                command: ["sleep", "infinity"]
+                securityContext:
+                  runAsUser: 1000
+                  privileged: true
+                volumeMounts:
+                  - name: containers
+                    mountPath: /var/lib/containers
+            volumes:
+              - name: containers
+                emptyDir: {}
+          EOF
+          kubectl wait --for=condition=Ready pod/coder-workspace --timeout=120s
+          tar -C container-modules -cf - python rust | kubectl exec -i coder-workspace -- tar -xf - -C /tmp
+          kubectl exec coder-workspace -- sh -ec '
+            test "$(id -u)" = 1000
+            sudo podman info
+            sudo podman build -t workshop-python:ci /tmp/python
+            sudo podman build -t workshop-rust:ci /tmp/rust
+            sudo podman run --rm -d -p 127.0.0.1:8080:8080 workshop-python:ci
+            curl -fsS --retry 5 --retry-all-errors --retry-delay 1 --max-time 5 http://127.0.0.1:8080/ |
+              grep -Fx "Hello from Python"
+          '
+      - uses: docker/login-action@v4
+        if: github.event_name == 'push'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: infra/workspace-container/
-          push: true
-          tags: ghcr.io/${{ github.repository }}/kubernetes-toolcontainer:latest
+      - name: Publish the tested image
+        if: github.event_name == 'push'
+        env:
+          TOOL_IMAGE: ${{ steps.image.outputs.name }}
+        run: docker push "$TOOL_IMAGE"

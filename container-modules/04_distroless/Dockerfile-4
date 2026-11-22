@@ -1,13 +1,12 @@
-FROM registry.access.redhat.com/ubi9 AS build
-RUN dnf update -y
-RUN dnf install java-17-openjdk-devel -y
-WORKDIR /app
-COPY HelloWorld.java .
-RUN javac HelloWorld.java
-RUN jar cfe app.jar HelloWorld HelloWorld.class
-RUN ls -lha
+FROM registry.access.redhat.com/ubi9/openjdk-17@sha256:7c71bf6a9eebdff3738453ec2833b542393e5be226b0af7a94eb7277d890b103 AS build
 
-FROM gcr.io/distroless/java17-debian12
-COPY --from=build /app/app.jar /app/app.jar
+WORKDIR /tmp
+COPY --chmod=0644 ["Java Code/HelloWorld.java", "./"]
+RUN javac HelloWorld.java && jar --create --file hello.jar --main-class HelloWorld HelloWorld.class
+
+FROM gcr.io/distroless/java17-debian12:nonroot@sha256:06484c2a9dcc9070aeafbc0fe752cb9f73bc0cea5c311f6a516e9010061998ad
+
 WORKDIR /app
-CMD ["app.jar"]
+COPY --from=build --chmod=0644 /tmp/hello.jar .
+USER 65532:65532
+CMD ["hello.jar"]

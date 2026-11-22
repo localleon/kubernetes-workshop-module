@@ -19,20 +19,23 @@ metadata:
   namespace: ingress
 spec:
   releaseName: traefik
+  upgrade:
+    crds: CreateReplace
   chart:
     spec:
       chart: traefik
+      version: '42.4.1'
       sourceRef:
         kind: HelmRepository
         name: traefik
         namespace: flux-system
   interval: 50m
   values:
-  # Add your helm-values of chart here
     service:
       enabled: true
       single: true
-      type: LoadBalancer
+      spec:
+        type: LoadBalancer
       # -- Additional annotations applied to both TCP and UDP services (e.g. for cloud provider specific config)
       annotations: 
         service.beta.kubernetes.io/azure-dns-label-name: aks-dev0-ingress

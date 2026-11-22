@@ -1,53 +1,14 @@
-# Load Kubeconfig for kubectl 
+# Connect to the cluster
 
-To connect with the cluster you need to load your corresponding kubeconfig. Just drop your kubeconfig-file into your home folder and set an absolute path via the `KUBECONFIG` environment variable to configure your credentials.
+Your workshop leader creates your team namespace and gives you a kubeconfig. Create `~/.kube` if needed and save it as `~/.kube/workshop.yaml`. Its context already selects your team's namespace.
 
-```bash
-export KUBECONFIG=/home/coder/azurek8s-lab.yaml
-```
-
-After that you should be able to connect to the cluster and execute commands like `kubectl get nodes`
-
-# Namespaces
-
-* Check versions of local installation and remote server
-  
-```shell
+```sh
+chmod 600 ~/.kube/workshop.yaml
+export KUBECONFIG="$HOME/.kube/workshop.yaml"
+kubectl config current-context
+kubectl config view --minify -o jsonpath='{.contexts[0].context.namespace}{"\n"}'
 kubectl version
+kubectl get pods
 ```
 
-* Verify kubectl uses your kubeconfig file by default
-
-```shell
-kubectl config view
-```
-
-* Try to connect
-
-```shell
-kubectl get nodes
-```
-
-* List Namespaces
-
-```shell
-kubectl get namespaces
-```
-
-* Set default namespace to context
-
-```shell
-kubectl config set-context --current --namespace=<YOURNAME>
-```
-
-* See change in kubeconfig
-
-```shell
-cat ~/.kube/config
-```
-
-* Verify that [helm is installed](https://helm.sh/docs/intro/install/) (should be 3.x.x)
-
-```shell
-helm version
-```
+An empty pod list is fine. Use this namespace throughout the exercises. Ask your instructor for a new kubeconfig when the token expires.

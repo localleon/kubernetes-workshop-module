@@ -119,6 +119,3 @@ fi
 # Kubernetes Sourcing 
 alias k="kubectl"
 source <(kubectl completion bash)
-
-# Installed Kaniko path
-alias kaniko="/kaniko/executor"

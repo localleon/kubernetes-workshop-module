@@ -82,6 +82,19 @@ data "coder_parameter" "memory" {
   }
 }
 
+data "coder_parameter" "podman" {
+  name         = "podman"
+  display_name = "Enable Podman"
+  description  = "Allow container builds in a privileged workspace on the lab cluster."
+  type         = "bool"
+  default      = "false"
+  mutable      = true
+}
+
+locals {
+  podman_enabled = data.coder_parameter.podman.value == "true"
+}
+
 data "coder_parameter" "home_disk_size" {
   name         = "home_disk_size"
   display_name = "Home disk size"
@@ -110,12 +123,10 @@ resource "coder_agent" "main" {
   startup_script = <<-EOT
     set -e
 
-    # Install the latest code-server.
-    # Append "--version x.x.x" to install a specific version of code-server.
-    curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server
-
-    # Start code-server in the background.
-    /tmp/code-server/bin/code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
+    if [ ! -e "$HOME/.bashrc" ]; then
+      cp /etc/skel/.bashrc "$HOME/.bashrc"
+    fi
+    code-server --auth none --bind-addr 127.0.0.1:13337 >/tmp/code-server.log 2>&1 &
   EOT
 
   # The following metadata blocks are optional. They are used to display
@@ -285,11 +296,12 @@ resource "kubernetes_deployment" "main" {
 
         container {
           name              = "dev"
-          image             = "ghcr.io/localleon/kubernetes-workshop-module/kubernetes-toolcontainer:v1.0.0"
-          image_pull_policy = "Always"
+          image             = "ghcr.io/localleon/kubernetes-workshop-module/kubernetes-toolcontainer:2026.11.2"
+          image_pull_policy = "IfNotPresent"
           command           = ["sh", "-c", coder_agent.main.init_script]
           security_context {
-            run_as_user = "1000"
+            run_as_user = 1000
+            privileged  = local.podman_enabled
           }
           env {
             name  = "CODER_AGENT_TOKEN"
@@ -310,6 +322,14 @@ resource "kubernetes_deployment" "main" {
             name       = "home"
             read_only  = false
           }
+
+          dynamic "volume_mount" {
+            for_each = local.podman_enabled ? [1] : []
+            content {
+              name       = "containers"
+              mount_path = "/var/lib/containers"
+            }
+          }
         }
         automount_service_account_token = false # do not mount a service token into the coder workspaces
 
@@ -318,6 +338,15 @@ resource "kubernetes_deployment" "main" {
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.home.metadata.0.name
             read_only  = false
+          }
+        }
+
+
+        dynamic "volume" {
+          for_each = local.podman_enabled ? [1] : []
+          content {
+            name = "containers"
+            empty_dir {}
           }
         }
 

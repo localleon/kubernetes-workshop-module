@@ -1,18 +1,13 @@
-# Update FluxCD manifests with current infrastructure setup! 
-userAssignedIdentityID=$(az identity list --query "[?name=='aks-dev0-external-dns-identity'].clientId" -o tsv)       
-sed -i "s|\(azure.workload.identity/client-id:\s*\).*|\1$userAssignedIdentityID|" infra/fluxcd-apps/external-dns.yaml
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Commit and push changes to the repository
-git add infra/fluxcd-apps/external-dns.yaml
-git commit -m "Update external-dns identity"
-git push
-
-# Bootstrap FluxCD 
+: "${WORKSHOP_CONTEXT:?Set WORKSHOP_CONTEXT to the lab admin kubeconfig context}"
 flux bootstrap github \
+  --context="$WORKSHOP_CONTEXT" \
+  --version=v2.10.1 \
   --token-auth \
   --owner=localleon \
   --repository=kubernetes-workshop-module \
   --branch=main \
   --path=infra/fluxcd \
   --personal
-

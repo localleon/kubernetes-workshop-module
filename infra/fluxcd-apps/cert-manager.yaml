@@ -22,12 +22,12 @@ spec:
   chart:
     spec:
       chart: cert-manager
+      version: 'v1.21.3'
       sourceRef:
         kind: HelmRepository
         name: jetstack-io
         namespace: flux-system
   interval: 50m
   values:
-  # Add your helm-values of chart here
     crds: 
       enabled: true 

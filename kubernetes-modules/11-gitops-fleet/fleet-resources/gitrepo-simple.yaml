@@ -1,0 +1,11 @@
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: sample-simple
+  namespace: fleet-local
+spec:
+  repo: https://github.com/localleon/kubernetes-workshop-module.git
+  branch: main
+  paths:
+    - kubernetes-modules/11-gitops-fleet/simple
+  targetNamespace: fleet-sample-simple

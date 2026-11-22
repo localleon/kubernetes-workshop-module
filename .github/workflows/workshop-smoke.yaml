@@ -1,0 +1,186 @@
+name: Workshop smoke tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  network-policy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      KIND_VERSION: v0.33.0
+      KUBECTL_VERSION: v1.37.2
+      CALICO_VERSION: v3.33.1
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Start a disposable cluster with NetworkPolicy support
+        run: |
+          tools_dir="$(mktemp -d)"
+          cd "$tools_dir"
+          curl -fsSLO "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64"
+          curl -fsSLO "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64.sha256sum"
+          sha256sum --check kind-linux-amd64.sha256sum
+          curl -fsSLo kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          curl -fsSLo kubectl.sha256 "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
+          printf '%s  kubectl\n' "$(cat kubectl.sha256)" | sha256sum --check
+          sudo install -m 0755 kind-linux-amd64 /usr/local/bin/kind
+          sudo install -m 0755 kubectl /usr/local/bin/kubectl
+          kind create cluster --name workshop --config - <<'CONFIG'
+          apiVersion: kind.x-k8s.io/v1alpha4
+          kind: Cluster
+          networking:
+            disableDefaultCNI: true
+            podSubnet: 192.168.0.0/16
+          CONFIG
+          kubectl apply --server-side -f "https://raw.githubusercontent.com/projectcalico/calico/${CALICO_VERSION}/manifests/calico.yaml"
+          kubectl -n kube-system rollout status daemonset/calico-node --timeout=300s
+          kubectl -n kube-system rollout status deployment/coredns --timeout=180s
+
+      - name: Check core manifests and learner isolation
+        run: |
+          kubectl create namespace team1
+          kubectl create namespace team2
+          kubectl label namespace team1 pod-security.kubernetes.io/enforce=baseline
+          kubectl -n team1 create serviceaccount learner
+          kubectl -n team1 apply -f infra/templates/namespaced-default-role.yaml
+          kubectl -n team1 create rolebinding learner --role=workshop-learner --serviceaccount=team1:learner
+          learner=(--as=system:serviceaccount:team1:learner)
+          kubectl "${learner[@]}" auth can-i create pods -n team1
+          kubectl "${learner[@]}" auth can-i list endpointslices.discovery.k8s.io -n team1
+          if kubectl "${learner[@]}" auth can-i get secrets -n team2; then exit 1; fi
+          for directory in kubernetes-modules/0[1-7]-*; do
+            kubectl "${learner[@]}" -n team1 apply --dry-run=server -f "$directory"
+          done
+          kubectl "${learner[@]}" -n team1 apply --dry-run=server \
+            -f kubernetes-modules/08-deployment-with-ingress-and-tls/web-application/deployment/ingress.yaml
+          kubectl "${learner[@]}" -n team1 apply --dry-run=server -f kubernetes-modules/02-deployments/python/
+
+      - name: Check Toolbox DNS and NetworkPolicy
+        working-directory: kubernetes-modules/12-network-policies
+        run: |
+          learner() { kubectl --as=system:serviceaccount:team1:learner -n team1 "$@"; }
+          learner apply -f deployment-web.yaml -f toolbox.yaml
+          learner rollout status deployment/network-demo --timeout=120s
+          learner rollout status deployment/toolbox --timeout=120s
+          toolbox() { learner exec deployment/toolbox -- "$@"; }
+          http() { toolbox curl -fsS --max-time 2 http://network-demo/ -o /dev/null; }
+
+          toolbox getent hosts network-demo
+          toolbox curl -fsS --max-time 2 --retry 5 --retry-all-errors --retry-delay 1 http://network-demo/ -o /dev/null
+          learner apply -f deny-all.yaml
+          for attempt in {1..10}; do
+            if toolbox sh -c 'curl -fsS --max-time 2 http://network-demo/ -o /dev/null; test "$?" -eq 28'; then break; fi
+            if [[ "$attempt" == 10 ]]; then exit 1; fi
+            sleep 1
+          done
+          toolbox getent hosts network-demo
+          learner apply -f allow-toolbox.yaml
+          for attempt in {1..10}; do
+            if http; then break; fi
+            if [[ "$attempt" == 10 ]]; then exit 1; fi
+            sleep 1
+          done
+
+  container-examples:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: container-modules
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Check Podman
+        run: |
+          if ! command -v podman >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y podman
+          fi
+          podman info --format '{{.Host.Security.Rootless}}' | grep -Fx true
+
+      - name: Build and run Java images
+        run: |
+          for dockerfile in 01_Full_RHEL/Dockerfile-1 02_Min_RHEL/Dockerfile-2 03_Multi_Stage_Java/Dockerfile 04_distroless/Dockerfile-4; do
+            podman build -f "$dockerfile" -t workshop-java:ci . || podman build -f "$dockerfile" -t workshop-java:ci .
+            podman run --rm workshop-java:ci | grep -Fx 'Hallo, ich bin eine Java App in einem Container'
+          done
+
+      - name: Build and probe HTTP images
+        run: |
+          for example in nginx rust python; do
+            podman build -t "workshop-$example:ci" "$example" || podman build -t "workshop-$example:ci" "$example"
+            (
+              container=$(podman run -d -p 127.0.0.1::8080 "workshop-$example:ci")
+              trap 'podman rm -f "$container" >/dev/null' EXIT
+              address=$(podman port "$container" 8080/tcp)
+              if ! curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 1 --max-time 5 "http://$address/"; then
+                podman logs "$container"
+                exit 1
+              fi
+            )
+          done
+
+      - name: Verify the tutorial edits
+        run: |
+          exercises=$(mktemp -d)
+          trap 'rm -rf "$exercises"' EXIT
+          cp -a . "$exercises/"
+          cd "$exercises"
+
+          build() { podman build "$@" || podman build "$@"; }
+          greeting='Hallo, ich bin eine Java App in einem Container'
+
+          sed -i 's/dnf install -y java-17-openjdk-devel/dnf install -y java-17-openjdk-devel jq/' 01_Full_RHEL/Dockerfile-1
+          build -f 01_Full_RHEL/Dockerfile-1 -t workshop-java:ubi-jq .
+          podman run --rm workshop-java:ubi-jq jq --version | grep '^jq-'
+
+          printf '\nLABEL org.opencontainers.image.title="Workshop Java on minimal UBI"\n' >> 02_Min_RHEL/Dockerfile-2
+          build -f 02_Min_RHEL/Dockerfile-2 -t workshop-java:ubi-minimal-v2 .
+          podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.title" }}' workshop-java:ubi-minimal-v2 |
+            grep -Fx 'Workshop Java on minimal UBI'
+
+          sed -i 's/^USER 185:0$/USER 1001:0/' 03_Multi_Stage_Java/Dockerfile
+          build -f 03_Multi_Stage_Java/Dockerfile -t workshop-java:ubi-runtime-v2 .
+          podman image inspect --format '{{.Config.User}}' workshop-java:ubi-runtime-v2 | grep -Fx '1001:0'
+          podman run --rm workshop-java:ubi-runtime-v2 | grep -Fx "$greeting"
+
+          printf '\nENV JAVA_TOOL_OPTIONS="-Xmx64m"\n' >> 04_distroless/Dockerfile-4
+          build -f 04_distroless/Dockerfile-4 -t workshop-java:distroless-v2 .
+          output=$(podman run --rm workshop-java:distroless-v2 2>&1)
+          grep -Fx 'Picked up JAVA_TOOL_OPTIONS: -Xmx64m' <<< "$output"
+          grep -Fx "$greeting" <<< "$output"
+
+          printf 'About the workshop\n' > nginx/about.html
+          printf '\nCOPY --chmod=0644 about.html /usr/share/nginx/html/about.html\n' >> nginx/Dockerfile
+          sed -i 's/Hello from Rust/Hello from my Rust image/' rust/src/main.rs
+          sed -i '/self.end_headers()/i\        self.send_header("X-Workshop", "python")' python/app.py
+
+          for example in nginx rust python; do
+            build -t "workshop-$example:v2" "$example"
+            (
+              container=$(podman run -d -p 127.0.0.1::8080 "workshop-$example:v2")
+              trap 'podman rm -f "$container" >/dev/null' EXIT
+              address=$(podman port "$container" 8080/tcp)
+              route=/
+              if [[ "$example" == nginx ]]; then route=/about.html; fi
+              curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 1 --max-time 5 \
+                --dump-header headers --output response "http://$address$route"
+              case "$example" in
+                nginx) grep -Fx 'About the workshop' response ;;
+                rust) grep -Fx 'Hello from my Rust image' response ;;
+                python) tr -d '\r' < headers | grep -Fxi 'X-Workshop: python' ;;
+              esac
+            )
+          done

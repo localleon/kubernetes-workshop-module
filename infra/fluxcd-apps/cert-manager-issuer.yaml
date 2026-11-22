@@ -20,19 +20,19 @@ spec:
   chart:
     spec:
       chart: cert-manager-issuers
+      version: '0.3.1'
       sourceRef:
         kind: HelmRepository
         name: adfinis
         namespace: flux-system
   interval: 5m
   values:
-  # Add your helm-values of chart here
     # YAML Anchors for meta configuration
     _1: &email me@lrau.xyz # Personal mail for workshop only
     _2: &solvers
     - http01:
         ingress:
-          class: traefik
+          ingressClassName: traefik
 
     # Issuer configuration
     clusterIssuers:
